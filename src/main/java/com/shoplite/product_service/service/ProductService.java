@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+
 @Service
 @Transactional(readOnly = true)
 public class ProductService {
@@ -23,6 +24,13 @@ public class ProductService {
 
     public List<ProductResponse> findAll() {
         return repository.findAll()
+                .stream()
+                .map(ProductResponse::from)
+                .toList();
+    }
+
+    public List<ProductResponse> searchProducts(String name) {
+        return repository.findByNameContainingIgnoreCase(name)
                 .stream()
                 .map(ProductResponse::from)
                 .toList();

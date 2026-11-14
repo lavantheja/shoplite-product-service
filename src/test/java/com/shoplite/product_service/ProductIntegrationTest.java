@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.List;
 
 @SpringBootTest
 class ProductIntegrationTest {
@@ -115,6 +116,32 @@ class ProductIntegrationTest {
         assertEquals("Updated RGB Keyboard", updated.getDescription());
         assertEquals(new BigDecimal("89.99"), updated.getPrice());
         assertEquals(25, updated.getStock());
+    }
+
+
+    @Test
+    void shouldSearchProductsIgnoringCase() {
+
+        // Create a product in the test database
+        Product mouse = new Product(
+                "Wireless Mouse",
+                "Bluetooth Mouse",
+                new BigDecimal("29.99"),
+                15
+        );
+
+        productRepository.saveAndFlush(mouse);
+
+        // Search using uppercase letters
+        List<Product> results =
+                productRepository.findByNameContainingIgnoreCase("MOUSE");
+
+        // Verify PostgreSQL returned the matching product
+        assertTrue(
+                results.stream()
+                        .anyMatch(product ->
+                                product.getName().equals("Wireless Mouse"))
+        );
     }
 
     @Test

@@ -16,14 +16,13 @@ import java.util.List;
 import com.shoplite.product_service.dto.CreateProductRequest;
 import org.mockito.ArgumentCaptor;
 
-
 import static org.mockito.Mockito.verify;
 
 import com.shoplite.product_service.service.ProductNotFoundException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
+import com.shoplite.product_service.dto.ProductResponse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -96,6 +95,37 @@ class ProductServiceTest {
         // 7. Check the service response
         assertEquals("Wireless Mouse", response.name());
     }
+
+
+    @Test
+    void shouldSearchProductsByName() {
+
+        // Step 1: Create a sample product
+        Product mouse = new Product(
+                "Wireless Mouse",
+                "Bluetooth Mouse",
+                new BigDecimal("29.99"),
+                15
+        );
+
+        // Step 2: Mock the repository search
+        when(productRepository.findByNameContainingIgnoreCase("mouse"))
+                .thenReturn(List.of(mouse));
+
+        // Step 3: Call the actual service method
+        List<ProductResponse> results =
+                productService.searchProducts("mouse");
+
+        // Step 4: Verify the search results
+        assertEquals(1, results.size());
+        assertEquals("Wireless Mouse", results.get(0).name());
+        assertEquals(new BigDecimal("29.99"), results.get(0).price());
+
+        // Step 5: Verify repository interaction
+        verify(productRepository)
+                .findByNameContainingIgnoreCase("mouse");
+    }
+
 
     @Test
     void shouldThrowExceptionWhenProductNotFound() {
